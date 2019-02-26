@@ -1,7 +1,5 @@
 OCAMLBUILD= ocamlbuild -no-links -classic-display \
-		-libs unix,nums,aez \
-		-cflags "-I ../../lib/aez-0.3" \
-		-lflags "-I ../../lib/aez-0.3" \
+		-libs unix,nums \
 		-tags debug,annot
 
 TARGET=native
@@ -26,7 +24,6 @@ $(MAIN): $(MAIN).target
 
 $(MAIN).target:
 	$(OCAMLBUILD) $(MAIN).$(TARGET)
-
 
 clean:
 	ocamlbuild -classic-display -clean
