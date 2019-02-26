@@ -54,26 +54,27 @@ rule token = parse
   | [' ' '\t' '\r']+      { token lexbuf }
   | "--" [^ '\n']* ['\n'] { newline lexbuf; token lexbuf }
   | "/*"                  { comment lexbuf; token lexbuf }
+
   | ident                 { id_or_keyword (lexeme lexbuf) }
-  | digit+                { CONST_INT (int_of_string (lexeme lexbuf)) }
+
+  | digit+                { CONST_INT  (int_of_string   (lexeme lexbuf)) }
   | float                 { CONST_REAL (float_of_string (lexeme lexbuf)) }
-  | "-"                   { MINUS }
-  | "+"                   { PLUS }
-  | "*"                   { STAR }
-  | "/"                   { SLASH }
-  | ">"                   { COMP Op_gt }
-  | ">="                  { COMP Op_ge }
-  | "<"                   { COMP Op_lt }
-  | "<="                  { COMP Op_le }
-  | "<>"                  { NEQ }
+
+  | "-" { MINUS } | "+" { PLUS } | "*" { STAR }  | "/" { SLASH }
+
+  | ">"   { COMP Op_gt }  | ">="  { COMP Op_ge }
+  | "<"   { COMP Op_lt }  | "<="  { COMP Op_le }
+  | "<>"  { NEQ }
+
   | "=>"                  { IMPL }
   | "->"                  { ARROW }
-  | "("                   { LPAREN }
-  | ")"                   { RPAREN }
-  | ":"                   { COLON }
-  | ";"                   { SEMICOL }
+
+  | "(" { LPAREN } | ")" { RPAREN }
+
+  | ":" { COLON } | ";" { SEMICOL } | "," { COMMA }
+
   | "="                   { EQUAL }
-  | ","                   { COMMA }
+
   | _                     { raise (Lexical_error (lexeme lexbuf)) }
   | eof                   { EOF }
 
