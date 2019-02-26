@@ -1,5 +1,5 @@
 OCAMLBUILD= ocamlbuild -no-links -classic-display \
-		-libs unix,nums \
+		-libs unix \
 		-tags debug,annot
 
 TARGET=native
