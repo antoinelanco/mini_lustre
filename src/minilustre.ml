@@ -70,8 +70,8 @@ let () =
     if !type_only then exit 0;
     if main_node = "" then exit 0;
 
-    let _ = Compil.main ft in
-
+    let res = Compil.main ft in
+    print_string (Cpp_ast_printer.print res);
 
     exit 0
   with
