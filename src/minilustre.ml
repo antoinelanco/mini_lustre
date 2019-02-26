@@ -70,8 +70,8 @@ let () =
     if !type_only then exit 0;
     if main_node = "" then exit 0;
 
-    (* XXX TODO XXX *)
-    Format.printf "Don't know@.";
+    let _ = Compil.main ft in
+
 
     exit 0
   with
