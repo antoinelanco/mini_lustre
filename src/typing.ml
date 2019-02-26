@@ -8,22 +8,22 @@ module M = Map.Make(String)
 
 
 type error =
-  | ExpectedType of ty * ty
-  | ExpectedPattern of ty
-  | ExpectedBase of ty
-  | ExpectedNum of ty
-  | UnboundVar of string
-  | UnboundNode of string
+  | ExpectedType      of ty * ty
+  | ExpectedPattern   of ty
+  | ExpectedBase      of ty
+  | ExpectedNum       of ty
+  | UnboundVar        of string
+  | UnboundNode       of string
+  | Clash             of string
+  | Other             of string
+  | UndefinedOutputs  of string list
+  | InputVar          of string
+  | BadMain           of ty * ty
   | TooFewArguments
   | TooManyArguments
-  | Clash of string
   | ConstantExpected
-  | Other of string
   | FlatTuple
-  | UndefinedOutputs of string list
-  | InputVar of string
   | Causality
-  | BadMain of ty * ty
 
 exception Error of location * error
 let dummy_loc = Lexing.dummy_pos, Lexing.dummy_pos
@@ -33,12 +33,12 @@ let errors loc s = error loc (Other s)
 
 let print_base_type fmt = function
   | Tbool -> fprintf fmt "bool"
-  | Tint -> fprintf fmt "int"
+  | Tint  -> fprintf fmt "int"
   | Treal -> fprintf fmt "real"
 
 let print_type fmt = function
-  | ([]) -> fprintf fmt "empty tuple"
-  | [t] -> print_base_type fmt t
+  | ([])    -> fprintf fmt "empty tuple"
+  | [t]     -> print_base_type fmt t
   | (t::tl) ->
       fprintf fmt "(";
       print_base_type fmt t;
@@ -46,15 +46,24 @@ let print_type fmt = function
       fprintf fmt ")"
 
 let report fmt = function
-  | UnboundVar id -> fprintf fmt "unbound variable %s" id
-  | UnboundNode id -> fprintf fmt "unbound node %s" id
-  | ExpectedType (t1,t2) ->
+  | UnboundVar id         -> fprintf fmt "unbound variable %s" id
+  | UnboundNode id        -> fprintf fmt "unbound node %s" id
+  | Clash id              -> fprintf fmt "The variable %s is defined several times" id
+  | TooFewArguments       -> fprintf fmt "too few arguments"
+  | TooManyArguments      -> fprintf fmt "too many arguments"
+  | ConstantExpected      -> fprintf fmt "this expression sould be a constant"
+  | Other s               -> fprintf fmt "%s" s
+  | FlatTuple             -> fprintf fmt "nested tuples are forbidden"
+  | InputVar s            -> fprintf fmt "%s is an input variable" s
+  | Causality             -> fprintf fmt "problem of causality"
+
+  | ExpectedType (t1,t2)  ->
       fprintf fmt
       "this expression has type %a but is expected to have type %a"
       print_type t1 print_type t2
   | ExpectedPattern ty ->
       fprintf fmt "this pattern is expected to have type %a"
-	print_type ty
+  print_type ty
   | ExpectedBase ty ->
       fprintf fmt
      "this expression has type %a but is expected to have a type simple type"
@@ -63,30 +72,23 @@ let report fmt = function
       fprintf fmt
       "this expression has type %a but is expected to have type int or real"
       print_type ty
-  | Clash id -> fprintf fmt "The variable %s is defined several times" id
-  | TooFewArguments -> fprintf fmt "too few arguments"
-  | TooManyArguments -> fprintf fmt "too many arguments"
-  | ConstantExpected -> fprintf fmt "this expression sould be a constant"
-  | Other s -> fprintf fmt "%s" s
-  | FlatTuple -> fprintf fmt "nested tuples are forbidden"
   | UndefinedOutputs l ->
       fprintf fmt "those output variables are undefined:%a"
-	(fun fmt -> List.iter (fun x -> fprintf fmt "%s " x)) l
-  | InputVar s -> fprintf fmt "%s is an input variable" s
-  | Causality -> fprintf fmt "problem of causality"
+  (fun fmt -> List.iter (fun x -> fprintf fmt "%s " x)) l
   | BadMain (t_in, t_out) ->
       fprintf fmt "The main node has type %a -> %a but is expected to have type %a -> bool"
-	print_type t_in print_type t_out
-        print_type t_in
+	     print_type t_in print_type t_out
+       print_type t_in
 
 let int_of_real = Ident.make "int_of_real" Ident.Prim
 let real_of_int = Ident.make "real_of_int" Ident.Prim
 
 module Delta = struct
 
-  let prims = [
-    "int_of_real", (int_of_real, ([Treal] , [Tint])) ;
-    "real_of_int", (real_of_int, ([Tint] , [Treal])) ; ]
+  let prims =
+    [ "int_of_real", (int_of_real, ([Treal] , [Tint]))
+    ; "real_of_int", (real_of_int, ([Tint] , [Treal]))
+    ]
 
   let nodes = Hashtbl.create 97
 
@@ -133,8 +135,6 @@ let base_ty_of_ty loc t =
   | [t'] -> t'
   | _ -> error loc (ExpectedBase t)
 
-
-
 let compatible_base actual_ty expected_ty =
   actual_ty = expected_ty
 
@@ -146,7 +146,6 @@ let compatible actual_ty expected_ty =
 	(well_t && well_t'))
       true actual_ty expected_ty
   with Invalid_argument _ -> false
-
 
 let real_expr_of_expr te =
   match te.texpr_type with
@@ -168,43 +167,38 @@ let real_op_of_int_op op =
 
 let not_a_nested_tuple e loc =
   match e with
-    | PE_tuple el ->
-	List.iter
-	  (fun e ->
+    | PE_tuple el -> List.iter (fun e ->
 	     match e.pexpr_desc with
-		 PE_tuple _ -> error loc FlatTuple;
-	       | _ -> ()) el
+       | PE_tuple _ -> error loc FlatTuple;
+	     | _ -> ()
+     ) el
     | _ -> assert false
 
 let rec is_constant env e =
   match e.texpr_desc with
-  | TE_const _ -> true
+  | TE_const _  -> true
   | TE_tuple el -> List.for_all (is_constant env) el
-  | _ -> false
+  | _           -> false
 
 let rec const_of_expr e =
   match e.texpr_desc with
-  | TE_const c -> [c]
-  | TE_tuple el ->
-      List.fold_right (fun e acc -> const_of_expr e @ acc) el []
-  | _ -> assert false
+  | TE_const c  -> [c]
+  | TE_tuple el -> List.fold_right (fun e acc -> const_of_expr e @ acc) el []
+  | _           -> assert false
 
 let type_constant = function
   | Cbool _ -> [Tbool]
-  | Cint _ -> [Tint]
+  | Cint _  -> [Tint]
   | Creal _ -> [Treal]
 
 let rec type_expr env e =
   let desc,t = type_expr_desc env e.pexpr_loc e.pexpr_desc in
-  { texpr_desc = desc; texpr_type = t; texpr_loc = e.pexpr_loc; }
+  { texpr_desc = desc; texpr_type = t; texpr_loc = e.pexpr_loc }
 
 and type_expr_desc env loc = function
-  | PE_const c ->
-      TE_const c , type_constant c
+  | PE_const c -> TE_const c , type_constant c
 
-  | PE_ident x ->
-      let x, ty, _ = Gamma.find loc env x in
-      TE_ident x , [ty]
+  | PE_ident x -> let x, ty, _ = Gamma.find loc env x in TE_ident x , [ty]
 
   | PE_op (Op_not, [e]) ->
       let tt = [Tbool] in
@@ -381,7 +375,7 @@ and expected_base_type env e =
 
 let rec type_patt env p =
   let desc, t = type_patt_desc env p.ppatt_loc p.ppatt_desc in
-  { tpatt_desc = desc; tpatt_type = t; tpatt_loc = p.ppatt_loc; }
+  { tpatt_desc = desc; tpatt_type = t; tpatt_loc = p.ppatt_loc }
 
 and type_patt_desc env loc patt =
   match patt with

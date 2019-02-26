@@ -6,9 +6,7 @@ let make =
   let cpt = ref 0 in
   fun s kind ->
     incr cpt;
-    { id = !cpt;
-      name = s;
-      kind = kind; }
+    { id = !cpt; name = s; kind = kind }
 
 let compare = Pervasives.compare
 
