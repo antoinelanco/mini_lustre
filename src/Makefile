@@ -3,7 +3,7 @@ OCAMLBUILD= ocamlbuild -no-links -classic-display \
 		-tags debug,annot
 
 TARGET=native
-MAIN=lmoch
+MAIN=minilustre
 
 all: $(MAIN)
 
