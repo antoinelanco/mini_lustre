@@ -1,10 +1,10 @@
-LMOCH=../src/lmoch
+LUC=../src/minilustre
 
 FILE=ex001.lus
 NODE=check
 
 check:
-	$(LMOCH) $(FILE) $(NODE)
+	$(LUC) $(FILE) $(NODE)
 
 clean:
 
