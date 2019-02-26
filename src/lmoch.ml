@@ -9,19 +9,19 @@ open Parse_ast
 
 let usage = "usage: "^Sys.argv.(0)^" [options] file.lus main"
 
-let parse_only = ref false
-let type_only = ref false
-let norm_only = ref false
-let lucy_printer = ref false
+let parse_only    = ref false
+let type_only     = ref false
+let norm_only     = ref false
+let lucy_printer  = ref false
 let ocaml_printer = ref true
-let verbose = ref false
+let verbose       = ref false
 
 let spec =
-  ["-parse-only", Arg.Set parse_only, "  stops after parsing";
-   "-type-only", Arg.Set type_only, "  stops after typing";
-   "-norm-only", Arg.Set norm_only, "  stops after normalization";
-   "-verbose", Arg.Set verbose, "print intermediate transformations";
-   "-v", Arg.Set verbose, "print intermediate transformations";
+  [ "-parse-only" , Arg.Set parse_only  , " stops after parsing"
+  ; "-type-only"  , Arg.Set type_only   , " stops after typing"
+  ; "-norm-only"  , Arg.Set norm_only   , " stops after normalization"
+  ; "-verbose"    , Arg.Set verbose     , " print intermediate transformations"
+  ; "-v"          , Arg.Set verbose     , " print intermediate transformations"
   ]
 
 let file, main_node =
