@@ -9,7 +9,7 @@ type ty = base_ty list
 
 type const =
   | Cbool of bool
-  | Cint of int
+  | Cint  of int
   | Creal of float
 
 type op =
