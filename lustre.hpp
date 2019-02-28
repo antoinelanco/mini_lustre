@@ -12,102 +12,56 @@ auto ci(T t)
   else return t;
 }
 
-auto Op_add = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) + ci(e2); };
-};
+template<typename E1, typename E2> auto Op_add(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) + ci(e2); }; };
+template<typename E1, typename E2> auto Op_sub(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) - ci(e2); }; };
+template<typename E1, typename E2> auto Op_mul(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) * ci(e2); }; };
+template<typename E1, typename E2> auto Op_div(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) / ci(e2); }; };
+template<typename E1, typename E2> auto Op_mod(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) % ci(e2); }; };
 
-auto Op_sub = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) - ci(e2); };
-};
+template<typename E1, typename E2> auto Op_eq(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) == ci(e2); }; };
+template<typename E1, typename E2> auto Op_neq(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) != ci(e2); }; };
+template<typename E1, typename E2> auto Op_lt(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) <  ci(e2); }; };
+template<typename E1, typename E2> auto Op_le(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) <= ci(e2); }; };
+template<typename E1, typename E2> auto Op_gt(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) >  ci(e2); }; };
+template<typename E1, typename E2> auto Op_ge(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) >= ci(e2); }; };
 
+template<typename E> auto Op_not(E const& e)
+{ return [=](){ return !ci(e); }; };
 
-auto Op_mul = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) * ci(e2); };
-};
+template<typename E1, typename E2> auto Op_and(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) && ci(e2); }; };
+template<typename E1, typename E2> auto Op_or(E1 const& e1, E2 const& e2)
+{ return [=](){ return ci(e1) || ci(e2); }; };
+template<typename E1, typename E2> auto Op_impl(E1 const& e1, E2 const& e2)
+{ return [=](){ return !ci(e1) || ci(e2); }; };
 
-auto Op_div = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) / ci(e2); };
-};
-
-auto Op_mod = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) % ci(e2); };
-};
-
-
-auto Op_eq  = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) == ci(e2); };
-};
-
-auto Op_neq = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) != ci(e2); };
-};
-
-auto Op_lt  = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) <  ci(e2); };
-};
-
-auto Op_le  = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) <= ci(e2); };
-};
-
-auto Op_gt  = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) >  ci(e2); };
-};
-
-auto Op_ge  = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) >= ci(e2); };
-};
-
-
-auto Op_not = [](auto const& e)
-{
-  return [=](){ return !ci(e); };
-};
-
-
-auto Op_and  = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) && ci(e2); };
-};
-
-auto Op_or   = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return ci(e1) || ci(e2); };
-};
-
-auto Op_impl = [](auto const& e1, auto const& e2)
-{
-  return [=](){ return !ci(e1) || ci(e2); };
-};
-
-auto Op_if = [](auto const& c, auto const& t, auto const& f)
+template<typename C, typename R>
+auto Op_if(C const& c, R const& t, R const& f)
 { return [=](){ return ci(c) ? ci(t) : ci(f); }; };
 
-template<typename Exp>
-auto pre(Exp exp)
+template<typename E> auto pre(E e)
 {
-  auto val = ci(exp);
+  auto val = ci(e);
   return [=]() mutable
   {
     auto ret = val;
-    val = ci(exp);
+    val = ci(e);
     return ret;
   };
 }
 
-template<typename First, typename Then>
-auto fby(First first, Then then)
+template<typename First, typename Then> auto fby(First first, Then then)
 {
   auto val = ci(first);
   return [=]() mutable
