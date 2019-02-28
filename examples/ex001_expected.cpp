@@ -2,6 +2,8 @@
 #include <tuple>
 #include <memory>
 
+#include <lustre.hpp>
+
 /*  Base minilustre code
 
 node check (x: bool) returns (OK: bool);
@@ -14,47 +16,26 @@ tel
 
 */
 
-auto var = [](auto& var) { return [=]() mutable { return var; }; };
-auto con = [](auto  val) { return [=]() { return val; }; };
 
-/* TODO : complete this one */
-auto add = [](auto e1, auto e2) { return e1() + e2(); };
-auto sub = [](auto e1, auto e2) { return e1() + e2(); };
-
-auto pre = [](auto exp)
+auto get_check()
 {
-  auto val = exp();
-  return [=]() mutable
-  {
-    auto ret = val;
-    val = exp();
-    return ret;
-  };
-};
+  using namespace std;
+  using namespace lustre;
 
-auto fby = [](auto first, auto then)
-{
-  auto val = first();
-  return [=]() mutable
-  {
-    auto ret = val;
-    val = then();
-    return ret;
-  };
-};
-
-auto get_check ()
-{
   int n1, n2;
 
-  auto n1_var = var(n1);
-  auto n2_var = var(n2);
+  auto n1_ref = reference_wrapper(n1);
+  auto n2_ref = reference_wrapper(n2);
 
-  //  Generating functions & captures here
-  auto get_n1 = fby(con(0), add(pre(n1_var), con(1)));
-  auto get_n2 = fby(con(1), add(pre(n2_var), con(1)));
+  auto get_n1 = fby(0, Op_add(pre(n1_ref), 1));   //  n1 = 0 -> pre(n1) + 1;
+  auto get_n2 = fby(1, Op_add(pre(n2_ref), 1));   //  n2 = 1 -> pre(n2) + 1;
+  auto get_OK = Op_eq(Op_add(n1_ref, 1), n2_ref); //  OK = (n1 + 1) = n2;
 
-  auto lam = [n1 = std::move(n1), n2](std::tuple<bool> const& in_var) mutable -> std::tuple<bool>
+  auto lam =  [ = //  Capturing variables
+              //  Refreshing references
+              , n1_ref = reference_wrapper(n1)
+              , n2_ref = reference_wrapper(n2)
+              ] (std::tuple<bool> const& in_var) mutable
   {
     /* Generated out_var declaration */
     std::tuple<bool> out_var;
@@ -65,7 +46,7 @@ auto get_check ()
 
     n1 = get_n1();
     n2 = get_n2();
-    OK = (n1 + 1) == n2;
+    OK = get_OK();
 
     return out_var;
   };
@@ -75,5 +56,7 @@ auto get_check ()
 
 int main(int, char const *[])
 {
+  auto check = get_check();
+  (void)check;
   return 0;
 }
