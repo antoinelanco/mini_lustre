@@ -47,10 +47,9 @@ let schedule_equs inputs equs =
     let s_inputs =
       List.fold_left (fun acc (x, _) -> S.add x acc) S.empty inputs
     in
-    Graph.fold
-      (fun (y,s,e) g -> Graph.add (y,S.diff s s_inputs,e) g)
-      g
-      Graph.empty
+    Graph.fold (fun (y,s,e) g ->
+      Graph.add (y,S.diff s s_inputs,e) g
+    ) g Graph.empty
   in
   (* Tri topologique des equations *)
   let rec exists_loop topo g =
