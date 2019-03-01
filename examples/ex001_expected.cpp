@@ -42,6 +42,7 @@ auto get_check()
     /* Generated structured bindings */
     auto & [OK] = out_var;
     auto & [x]  = in_var;
+    (void)x;
 
     n1 = get_n1();
     n2 = get_n2();
