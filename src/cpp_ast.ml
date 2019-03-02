@@ -4,7 +4,6 @@ open Asttypes
 
 type typed_var = string * base_ty
 
-
 and cpp_expr =
   | CPP_const  of const
   | CPP_ident  of string

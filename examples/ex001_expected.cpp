@@ -1,6 +1,6 @@
-/* Include this file by default */
 #include <tuple>
 #include <memory>
+#include <iostream>
 
 //#include <lustre.hpp>
 
@@ -60,13 +60,16 @@ auto get_check()
 
     /* Generated structured bindings */
     auto & [OK] = out;
-    auto & [x] = in_var;
+    auto & [x]  = in_var;
+
     (void)x;
 
     //  n1 = 0 -> pre(n1) + 1;
     n1 = fby(_fby_1, 0, pre(_pre_1, n1) + 1);
+
     //  n2 = 1 -> pre(n2) + 1;
     n2 = fby(_fby_2, 1, pre(_pre_2, n2) + 1);
+
     //  OK = (n1 + 1) = n2;
     OK = (n1 + 1) == n2;
 
@@ -78,7 +81,11 @@ auto get_check()
 
 int main(int, char const *[])
 {
+  using namespace std;
   auto check = get_check();
-  (void)check;
+
+  for(int i = 0; i < 10; i++)
+    cout << get<0>(check(tuple(true))) << '\n';
+
   return 0;
 }
