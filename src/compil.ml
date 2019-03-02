@@ -6,7 +6,7 @@ let fonction (f:S.t_node) : T.cpp_fun =
   ; T.cpp_input = f.S.tn_input
   ; T.cpp_output = f.S.tn_output
   ; T.cpp_local = f.S.tn_local
-  ; T.cpp_equs = []
+  ; T.cpp_affs = f.S.tn_equs
   }
 
 let main ft =
