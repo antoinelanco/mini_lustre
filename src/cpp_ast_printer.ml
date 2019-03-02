@@ -1,5 +1,7 @@
 module C = Cpp_ast
 
+open Asttypes
+
 (* Prints local variables stored in the node *)
 let print_locals (t_vars: C.typed_var list): string =
   let capture_list = (List.map (fun elmt ->
@@ -24,15 +26,13 @@ let print_arguments (t_vars: C.typed_var list): string =
     | s, Treal  -> "float const& " ^ s
   ) t_vars)
   in
-  match capture_list with
+  match arg_list with
   | []    -> "[]"
   | e::tl ->
     "( " ^ (List.fold_left (fun acc elmt -> acc ^ " , " ^ elmt) e tl) ^ " )"
 
-let reformat_var_list
-  (beg_str:string) (sep_str:string) (end_str:string)
-  (t_var_trans: C.typed_var -> string)
-  (t_vars: C.typed_var list)
+let reformat_var_list (beg_str:string) (sep_str:string) (end_str:string)
+  (t_var_trans: C.typed_var -> string) (t_vars: C.typed_var list)
 : string =
   let var_list = List.map t_var_trans t_vars in
   let formatted_list =
