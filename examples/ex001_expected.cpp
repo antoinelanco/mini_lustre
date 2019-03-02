@@ -48,7 +48,7 @@ auto get_check()
     //
     //  Pareil que pour followed_by
     , _pre_1 = int{0}
-    , _pre_2 = int{1}
+    , _pre_2 = int{0}
 
     ] (std::tuple<bool> const& in_var)
     //  Le mot-clé 'mutable' permet d'attacher un environnement aux lambdas
