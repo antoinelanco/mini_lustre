@@ -19,6 +19,7 @@ and cpp_expr_desc =
   | CPP_pre    of cpp_expr
   | CPP_tuple  of cpp_expr list
 
+(* Les patterns sont exprimés grâce à std::tie *)
 type cpp_patt =
   { cpppatt_desc: string list
   ; cpppatt_type: ty
@@ -29,6 +30,11 @@ type cpp_affect =
   ; cppeq_expr: cpp_expr
   }
 
+(* Les fonctions lustre sont représentées par des lambda fonctions,
+ * qui permettent non seulement de modéliser le traitement d'un
+ * noeud mais également son environnement grâce aux lambda captures
+ * mutables.
+ *)
 type cpp_fun =
   { cpp_name:   string
   ; cpp_input:  typed_var list
