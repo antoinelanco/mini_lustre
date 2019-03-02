@@ -4,10 +4,7 @@ open Asttypes
 
 type typed_var = string * base_ty
 
-type cpp_expr =
-  { cppexpr_desc: cpp_expr_desc
-  ; cppexpr_type: ty
-  }
+type cpp_expr = { cppexpr_desc: cpp_expr_desc }
 
 and cpp_expr_desc =
   | CPP_const  of const

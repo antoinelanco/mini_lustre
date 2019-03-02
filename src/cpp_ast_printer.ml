@@ -1,3 +1,7 @@
-module S = Cpp_ast
+module C = Cpp_ast
 
-let print (cpp_ast:S.cpp_file) : string = ""
+let print_lambda_header (fun: C.cpp_fun) : string = ""
+
+let print_fun (fun: C.cpp_fun) : string = ""
+
+let print_file (file: C.cpp_file) : string = ""
