@@ -18,7 +18,10 @@ and t_expr_desc =
 
 type t_patt = { tpatt_desc: Ident.t list; tpatt_type: ty; tpatt_loc: location }
 
-type t_equation = { teq_patt: t_patt; teq_expr: t_expr }
+type t_equation =
+  { teq_patt: t_patt
+  ; teq_expr: t_expr
+  }
 
 type t_node =
   { tn_name:    Ident.t

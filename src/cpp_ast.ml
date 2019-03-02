@@ -12,11 +12,11 @@ and cpp_expr =
   | CPP_prim   of string * cpp_expr list
   | CPP_arrow  of cpp_expr * cpp_expr
   | CPP_pre    of cpp_expr
-
+  | CPP_tuple  of cpp_expr list
 
 type cpp_affect =
   { cppeq_patt: string list
-  ; cppeq_expr: cpp_expr list
+  ; cppeq_expr: cpp_expr
   }
 
 (* Les fonctions lustre sont représentées par des lambda fonctions,
