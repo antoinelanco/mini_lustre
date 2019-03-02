@@ -38,14 +38,22 @@ auto get_check()
     , n2 = int{0}
 
     //  followed_by
+    //
+    //  Les noms sont générés par le compilateur, ils doivent être *uniques* et
+    //  ne pas être en conflits avec les noms des variables existantes.
     , _fby_1 = false
     , _fby_2 = false
 
     //  pre
+    //
+    //  Pareil que pour followed_by
     , _pre_1 = int{0}
     , _pre_2 = int{0}
 
-    ] (std::tuple<bool> const& in_var) mutable
+    ] (std::tuple<bool> const& in_var)
+    //  Le mot-clé 'mutable' permet d'attacher un environnement aux lambdas
+    //  retournées par get_<node>.
+    mutable
   {
     /* Generated 'out' declaration */
     std::tuple<bool> out;
