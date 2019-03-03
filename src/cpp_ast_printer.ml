@@ -56,19 +56,35 @@ let rec print_exp (exp: C.cpp_expr): string =
     format_list "(" ", " ")" print_exp
   in
 
-  let print_op op elist =
-    match op, elist with
+  let print_op (op: op) (elist: C.cpp_expr list) =
+    match op with
+    (* Binops *)
     | Op_eq    | Op_neq   | Op_lt    | Op_le    | Op_gt  | Op_ge
-    | Op_add   | Op_sub   | Op_mul   | Op_div   | Op_mod
-    | Op_add_f | Op_sub_f | Op_mul_f | Op_div_f
-    | Op_not
-    | Op_and   | Op_or    | Op_impl
-    | Op_if
+    | Op_add   | Op_sub   | Op_mul   | Op_div   | Op_mod | Op_add_f
+    | Op_sub_f | Op_mul_f | Op_div_f | Op_and   | Op_or ->
+      (match elist with
+      | [e1; e2] -> (print_exp e1) ^ (print_op_symbol op) ^ (print_exp e2)
+      | _ -> failwith "Invalid argument number for binop"
+      )
 
+    | Op_not ->
+      (match elist with
+      | [e] -> "!" ^ (print_exp e) ^ ""
+      | _ -> "Invalid argument number for unop"
+      )
+    | Op_if ->
+      (match elist with
+      | [c; t; f] ->
+        (print_exp c) ^ " ? " ^ (print_exp t) ^ " : " ^ (print_exp f)
+      | _ -> failwith "Invalid argument number for terop"
+      )
+    | Op_impl -> failwith "Not implemented"
+  in
+  let exp_str =
   match exp with
   | CPP_const  (c)            -> print_const c
   | CPP_ident  (id)           -> id
-  | CPP_op     (op, elist)    -> failwith "Not implemented"
+  | CPP_op     (op, elist)    -> print_op op elist
   | CPP_tuple  (elist)        -> expr_list_to_tuple elist
   | CPP_app    (name, elist)
   | CPP_prim   (name, elist)  -> name ^ expr_list_to_args elist
@@ -77,6 +93,7 @@ let rec print_exp (exp: C.cpp_expr): string =
   (*| CPP_pre    of cpp_expr*)
 
   | _ -> failwith "Not implemented"
+  in "(" ^ exp_str ^ ")"
 
 let print_affect (aff: C.cpp_affect): string =
   let exp = print_exp aff.C.cppeq_expr in
