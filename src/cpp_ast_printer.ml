@@ -80,20 +80,21 @@ let rec print_exp (exp: C.cpp_expr): string =
       )
     | Op_impl -> failwith "Not implemented"
   in
-  let exp_str =
-  match exp with
-  | CPP_const  (c)            -> print_const c
-  | CPP_ident  (id)           -> id
-  | CPP_op     (op, elist)    -> print_op op elist
-  | CPP_tuple  (elist)        -> expr_list_to_tuple elist
-  | CPP_app    (name, elist)
-  | CPP_prim   (name, elist)  -> name ^ expr_list_to_args elist
+  let exp_body =
+    match exp with
+    | CPP_const  (c)            -> print_const c
+    | CPP_ident  (id)           -> id
+    | CPP_op     (op, elist)    -> print_op op elist
+    | CPP_tuple  (elist)        -> expr_list_to_tuple elist
+    | CPP_app    (name, elist)
+    | CPP_prim   (name, elist)  -> name ^ expr_list_to_args elist
 
-  (*| CPP_arrow  of cpp_expr * cpp_expr*)
-  (*| CPP_pre    of cpp_expr*)
+    (* Ça devient un peu compliqued je verrai si j'ai l'temps *)
+    (*| CPP_arrow  of cpp_expr * cpp_expr*)
+    (*| CPP_pre    of cpp_expr*)
 
-  | _ -> failwith "Not implemented"
-  in "(" ^ exp_str ^ ")"
+    | _ -> failwith "Not implemented"
+  in "(" ^ exp_body ^ ")"
 
 let print_affect (aff: C.cpp_affect): string =
   let exp = print_exp aff.C.cppeq_expr in

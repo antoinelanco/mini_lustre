@@ -71,7 +71,7 @@ let () =
     if main_node = "" then exit 0;
 
     let res = Compil.main ft in
-    print_string (Cpp_ast_printer.print res);
+    print_string (Cpp_ast_printer.print_file res);
 
     exit 0
   with
